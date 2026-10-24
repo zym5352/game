@@ -1,0 +1,2440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="街角那杯茶，一款治愈系模拟经营文字游戏" />
+  <meta name="theme-color" content="#3d5a48" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="街角那杯茶" />
+  <link rel="manifest" href="manifest.json" />
+  <title>街角那杯茶</title>
+  <style>
+    /* 基础重置与无障碍 */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    html {
+      font-size: 16px;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      line-height: 1.7;
+      color: #1a1a1a;
+      background: #f7f5f0;
+    }
+    /* 焦点样式，方便键盘导航 */
+    button:focus, a:focus, select:focus {
+      outline: 3px solid #0066cc;
+      outline-offset: 2px;
+    }
+    /* 页面结构 */
+    header {
+      background: #3d5a48;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+    header.shop-phase {
+      background: #5a4a3d;
+    }
+    header h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.5rem;
+    }
+    #scene-location {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #e8f0e9;
+    }
+    main {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 1rem;
+      min-height: calc(100vh - 140px);
+    }
+    footer {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+    }
+    footer button {
+      flex: 1 1 44%;
+      margin-bottom: 0;
+      text-align: center;
+    }
+    /* 设置页中的开关状态 */
+    .setting-note {
+      background: #f0efe9;
+      border-radius: 6px;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.95rem;
+    }
+    section {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.2rem;
+      color: #2c4a35;
+    }
+    h3 {
+      margin: 1rem 0 0.5rem;
+      font-size: 1.05rem;
+      color: #3d5a48;
+    }
+    p {
+      margin: 0.5rem 0;
+    }
+    ul, ol {
+      margin: 0.5rem 0;
+      padding-left: 1.5rem;
+    }
+    li {
+      margin: 0.35rem 0;
+    }
+    /* 按钮 */
+    button {
+      display: inline-block;
+      min-height: 44px;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background: #3d5a48;
+      color: #fff;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 0.5rem;
+      text-align: left;
+    }
+    button:hover {
+      background: #2f4739;
+    }
+    button.secondary {
+      background: #8c7b64;
+    }
+    button.secondary:hover {
+      background: #6f604c;
+    }
+    button.danger {
+      background: #a84444;
+    }
+    button.danger:hover {
+      background: #883636;
+    }
+    button.small {
+      width: auto;
+      min-width: 44px;
+      padding: 0.4rem 0.7rem;
+      margin-bottom: 0;
+    }
+    .button-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .button-row button {
+      flex: 1;
+      margin-bottom: 0;
+      text-align: center;
+    }
+    /* 表单与选择 */
+    label {
+      display: block;
+      margin: 0.75rem 0 0.25rem;
+      font-weight: bold;
+    }
+    select {
+      width: 100%;
+      min-height: 44px;
+      font-size: 1rem;
+      padding: 0.4rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #fff;
+    }
+    /* 数字输入 */
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0.5rem 0;
+    }
+    .quantity-control button {
+      width: 44px;
+      flex: 0 0 44px;
+      text-align: center;
+    }
+    .quantity-value {
+      min-width: 48px;
+      text-align: center;
+      font-weight: bold;
+    }
+    /* 状态卡片 */
+    .status-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    .status-item {
+      background: #f0efe9;
+      padding: 0.5rem;
+      border-radius: 6px;
+    }
+    .status-item strong {
+      display: block;
+      color: #3d5a48;
+    }
+    /* 日志与反馈 */
+    .log-box {
+      background: #f9f9f7;
+      border-left: 4px solid #3d5a48;
+      padding: 0.75rem;
+      margin: 0.75rem 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .feedback-list {
+      list-style: none;
+      padding-left: 0;
+      max-height: 240px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .feedback-list li {
+      padding: 0.4rem 0;
+      border-bottom: 1px dashed #ddd;
+    }
+    .achievement-pop {
+      background: #fff8e1;
+      border: 2px solid #d4a017;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin: 1rem 0;
+    }
+    /* 隐藏但可被读屏读取 */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    /* 响应式 */
+    @media (min-width: 480px) {
+      .status-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header id="page-header">
+    <h1>街角那杯茶</h1>
+    <p id="scene-location">当前位置：游戏开始</p>
+  </header>
+
+  <main id="app" role="main" aria-live="polite" aria-atomic="false">
+    <!-- 游戏内容将在这里动态渲染 -->
+  </main>
+
+  <footer>
+    <button type="button" id="btn-read" class="secondary">朗读本页</button>
+    <button type="button" id="btn-stop" class="secondary">停止朗读</button>
+    <button type="button" id="btn-settings" class="secondary">设置</button>
+    <button type="button" id="btn-save" class="secondary">手动保存</button>
+    <button type="button" id="btn-reset" class="danger">重置存档</button>
+  </footer>
+
+  <script>
+    // =====================================================
+    // 游戏数据与配置
+    // =====================================================
+    const STORAGE_KEY = 'corner_tea_save_v1';
+
+    // 原料定义：单位、单价、每杯基础用量
+    const INGREDIENTS = {
+      blackTea: { name: '红茶', unit: '斤', price: 50, baseUse: 0.05 },
+      greenTea: { name: '绿茶', unit: '斤', price: 40, baseUse: 0.04 },
+      oolongTea: { name: '乌龙茶', unit: '斤', price: 55, baseUse: 0.05 },
+      jasmineTea: { name: '茉莉花茶', unit: '斤', price: 45, baseUse: 0.04 },
+      milk: { name: '鲜奶', unit: '升', price: 15, baseUse: 0.08 },
+      creamer: { name: '奶精', unit: '升', price: 10, baseUse: 0.05 },
+      tapioca: { name: '珍珠', unit: '斤', price: 15, baseUse: 0.05 },
+      pudding: { name: '布丁', unit: '斤', price: 25, baseUse: 0.05 },
+      coconut: { name: '椰果', unit: '斤', price: 18, baseUse: 0.05 },
+      taroBall: { name: '芋圆', unit: '斤', price: 22, baseUse: 0.05 },
+      passionfruit: { name: '百香果', unit: '斤', price: 35, baseUse: 0.03 },
+      sugar: { name: '糖', unit: '斤', price: 5, baseUse: 0.02 },
+      ice: { name: '冰块', unit: '袋', price: 2, baseUse: 0.5 },
+      lemon: { name: '柠檬', unit: '斤', price: 20, baseUse: 0.03 }
+    };
+
+    // 基础饮品定义（推车阶段即可销售）
+    const BASE_DRINKS = {
+      milkTea: {
+        id: 'milkTea',
+        name: '珍珠奶茶',
+        basePrice: 12,
+        popularity: 35,
+        ingredients: { blackTea: 0.05, creamer: 0.05, tapioca: 0.05, sugar: 0.02, ice: 0.5 }
+      },
+      lemonGreenTea: {
+        id: 'lemonGreenTea',
+        name: '柠檬绿茶',
+        basePrice: 10,
+        popularity: 25,
+        ingredients: { greenTea: 0.04, lemon: 0.03, sugar: 0.03, ice: 1 }
+      },
+      blackTeaLatte: {
+        id: 'blackTeaLatte',
+        name: '红茶拿铁',
+        basePrice: 13,
+        popularity: 25,
+        ingredients: { blackTea: 0.05, milk: 0.08, sugar: 0.02, ice: 0.5 }
+      },
+      jasmineTea: {
+        id: 'jasmineTea',
+        name: '茉莉花茶',
+        basePrice: 8,
+        popularity: 15,
+        ingredients: { jasmineTea: 0.04, sugar: 0.02, ice: 0.5 }
+      }
+    };
+
+    // 可研发饮品定义（开店后解锁）
+    const RESEARCHABLE_DRINKS = {
+      puddingMilkTea: {
+        id: 'puddingMilkTea',
+        name: '布丁奶茶',
+        basePrice: 14,
+        popularity: 30,
+        ingredients: { blackTea: 0.05, creamer: 0.05, pudding: 0.05, sugar: 0.02, ice: 0.5 }
+      },
+      passionfruitGreenTea: {
+        id: 'passionfruitGreenTea',
+        name: '百香果绿茶',
+        basePrice: 13,
+        popularity: 28,
+        ingredients: { greenTea: 0.04, passionfruit: 0.03, sugar: 0.03, ice: 1 }
+      },
+      taroBallMilkTea: {
+        id: 'taroBallMilkTea',
+        name: '芋圆鲜奶茶',
+        basePrice: 15,
+        popularity: 25,
+        ingredients: { blackTea: 0.05, milk: 0.08, taroBall: 0.05, sugar: 0.02, ice: 0.5 }
+      }
+    };
+
+    // 当前可销售的全部饮品（根据 discoveredDrinks 动态合并）
+    function getAllDrinks(s) {
+      s = s || state;
+      const result = Object.assign({}, BASE_DRINKS);
+      s.discoveredDrinks.forEach(id => {
+        if (RESEARCHABLE_DRINKS[id]) result[id] = RESEARCHABLE_DRINKS[id];
+      });
+      return result;
+    }
+
+    // 设备定义
+    const EQUIPMENT = {
+      shaker: {
+        name: '制作设备',
+        levels: [
+          { level: 1, name: '手摇杯', price: 0, desc: '基础制作工具' },
+          { level: 2, name: '雪克机', price: 1500, desc: '制作速度提升，顾客满意度加5%' }
+        ]
+      },
+      cooler: {
+        name: '冷藏设备',
+        levels: [
+          { level: 1, name: '保温桶', price: 0, desc: '基础保温，原料每日损耗10%' },
+          { level: 2, name: '小冰箱', price: 1200, desc: '原料每日损耗降至4%' }
+        ]
+      },
+      sealer: {
+        name: '封口设备',
+        levels: [
+          { level: 0, name: '无', price: 0, desc: '未购买' },
+          { level: 1, name: '手动封口机', price: 800, desc: '顾客满意度加3%' }
+        ]
+      },
+      iceMaker: {
+        name: '制冰机',
+        levels: [
+          { level: 0, name: '无', price: 0, desc: '未购买' },
+          { level: 1, name: '小型制冰机', price: 1000, desc: '每天自动生成3袋冰块，节省采购成本' }
+        ]
+      },
+      fructose: {
+        name: '果糖定量机',
+        levels: [
+          { level: 0, name: '无', price: 0, desc: '未购买' },
+          { level: 1, name: '普通果糖机', price: 900, desc: '标准化甜度，顾客满意度加4%' }
+        ]
+      }
+    };
+
+    // 员工候选人
+    const STAFF_CANDIDATES = [
+      {
+        id: 'xiaolin',
+        name: '小林',
+        title: '大学生兼职',
+        desc: '手快但偶尔迷糊，上课时间可能不在。',
+        speed: 30,
+        service: 5,
+        stability: 70,
+        salary: 80
+      },
+      {
+        id: 'chenjie',
+        name: '陈姐',
+        title: '社区大姐',
+        desc: '稳定可靠，和老顾客熟，但学新东西慢。',
+        speed: 10,
+        service: 20,
+        stability: 95,
+        salary: 100
+      },
+      {
+        id: 'ayu',
+        name: '阿宇',
+        title: '辍学少年',
+        desc: '沉默寡言，做事极认真，慢慢打开心扉后会成为骨干。',
+        speed: 15,
+        service: 15,
+        stability: 90,
+        salary: 90
+      }
+    ];
+
+    // 随机事件
+    const RANDOM_EVENTS = [
+      {
+        id: 'influencer',
+        name: '网红打卡',
+        type: 'positive',
+        weight: 1,
+        desc: '一位本地小网红发了你的摊位照片，今天客流明显增加。',
+        effect: (s) => { s.dayFlags.customerMultiplier *= 1.5; }
+      },
+      {
+        id: 'hotWeather',
+        name: '高温天气',
+        type: 'positive',
+        weight: 1,
+        desc: '今天气温超过35度，冷饮需求大幅上升。',
+        effect: (s) => { s.dayFlags.customerMultiplier *= 1.4; }
+      },
+      {
+        id: 'discount',
+        name: '原料促销',
+        type: 'positive',
+        weight: 1,
+        desc: '批发商今天做活动，所有原料采购成本降低30%。',
+        effect: (s) => { s.dayFlags.discount = 0.7; }
+      },
+      {
+        id: 'award',
+        name: '街道评优',
+        type: 'positive',
+        weight: 0.5,
+        desc: '你的摊位被评为街道示范摊，获得补贴200元。',
+        effect: (s) => { s.money += 200; s.dayFlags.bonus = 200; }
+      },
+      {
+        id: 'schoolOpen',
+        name: '学校开学',
+        type: 'positive',
+        weight: 0.7,
+        desc: '附近学校开学，学生客流增加。',
+        effect: (s) => { s.dayFlags.customerMultiplier *= 1.3; }
+      },
+      {
+        id: 'rain',
+        name: '下雨',
+        type: 'negative',
+        weight: 1.5,
+        desc: '下午突然下起大雨，客流减少不少。',
+        effect: (s) => { s.dayFlags.customerMultiplier *= 0.7; }
+      },
+      {
+        id: 'priceRise',
+        name: '原料涨价',
+        type: 'negative',
+        weight: 1,
+        desc: '今天某种原料临时涨价50%，采购成本上升。',
+        effect: (s) => {
+          const keys = Object.keys(INGREDIENTS);
+          const target = keys[Math.floor(Math.random() * keys.length)];
+          s.dayFlags.priceRise = { ingredient: target, rate: 1.5 };
+        }
+      },
+      {
+        id: 'reviewer',
+        name: '美食博主',
+        type: 'choice',
+        weight: 1,
+        desc: '一位美食博主想免费喝一杯并拍照评测。你同意吗？',
+        choices: [
+          { label: '同意，希望他能带来好评', effect: (s) => { s.reputation += 5; if (s.money >= 10) s.money -= 10; else s.money = 0; } },
+          { label: '婉拒，觉得这样不公平', effect: (s) => { s.reputation += 1; } }
+        ]
+      },
+      {
+        id: 'neighbor',
+        name: '邻居求助',
+        type: 'choice',
+        weight: 1,
+        desc: '旁边水果摊老板想借一些冰块应急，借给他吗？',
+        choices: [
+          { label: '借给他，以后互相帮忙', effect: (s) => { s.inventory.ice = Math.max(0, s.inventory.ice - 3); s.reputation += 2; } },
+          { label: '不借，自己也不够用', effect: (s) => { s.reputation -= 1; } }
+        ]
+      },
+      {
+        id: 'competitor',
+        name: '竞争对手',
+        type: 'negative',
+        weight: 0.8,
+        desc: '附近新开了一家连锁奶茶店，客流受到冲击。',
+        effect: (s) => { s.dayFlags.customerMultiplier *= 0.75; }
+      }
+    ];
+
+    // 常客数据
+    const REGULARS = {
+      xiaoying: {
+        id: 'xiaoying',
+        name: '小樱',
+        title: '高三女生',
+        desc: '每天放学来买半糖珍珠奶茶。',
+        drink: 'milkTea',
+        maxLevel: 3,
+        story: [
+          '她是附近高中的高三学生，总是背着鼓鼓的书包，点一杯半糖珍珠奶茶。',
+          '今天她看起来格外疲惫，眼眶有点红。她说模拟考考砸了，比平时低了五十分。',
+          '高考结束那天，她兴奋地跑来告诉你，她考上了一直想去的大学。'
+        ]
+      },
+      daliu: {
+        id: 'daliu',
+        name: '大刘',
+        title: '外卖小哥',
+        desc: '总在深夜十一点来，点最便宜的茶。',
+        drink: 'jasmineTea',
+        maxLevel: 3,
+        story: [
+          '大刘是附近站点的外卖骑手，每天深夜收工后都会来买一杯最便宜的茉莉花茶。',
+          '他今天坐了很久，说家里负担重，想存钱学门手艺，但不知道能不能撑下去。',
+          '几个月后，大刘告诉你他凑够了钱，准备去学修车，脸上第一次露出轻松的笑容。'
+        ]
+      },
+      grandpa: {
+        id: 'grandpa',
+        name: '老爷爷',
+        title: '每周三的老顾客',
+        desc: '总点两杯，一杯放对面空座。',
+        drink: 'blackTeaLatte',
+        maxLevel: 3,
+        story: [
+          '每周三下午，老爷爷都会来买两杯红茶拿铁，一杯放在对面的空座位上。',
+          '他说那是老伴以前最爱的口味，他们年轻时常来这条街散步。',
+          '今天他带着小外孙一起来，把其中一杯递给了孩子，另一杯自己慢慢喝着。'
+        ]
+      }
+    };
+
+    // 成就
+    const ACHIEVEMENTS = {
+      firstSale: { name: '第一桶金', desc: '累计售出第一杯奶茶', check: (s) => s.totalStats.cups >= 1 },
+      hundredCups: { name: '百杯小店', desc: '累计售出100杯奶茶', check: (s) => s.totalStats.cups >= 100 },
+      money3000: { name: '小有积蓄', desc: '资金达到3000元', check: (s) => s.money >= 3000 },
+      money5000: { name: '开店资金', desc: '资金达到5000元', check: (s) => s.money >= 5000 },
+      xiaoyingStory: { name: '樱花盛开', desc: '完成小樱的剧情线', check: (s) => s.regulars.xiaoying.level >= 3 },
+      daliuStory: { name: '夜路有光', desc: '完成大刘的剧情线', check: (s) => s.regulars.daliu.level >= 3 },
+      grandpaStory: { name: '两杯的温度', desc: '完成老爷爷的剧情线', check: (s) => s.regulars.grandpa.level >= 3 },
+      firstShop: { name: '第一家店', desc: '租下第一家店面', check: (s) => s.phase >= 2 },
+      hireStaff: { name: '第一位伙伴', desc: '招聘第一名员工', check: (s) => s.staff && s.staff.hired !== null },
+      newDrink: { name: '新配方', desc: '研发出一款新饮品', check: (s) => s.discoveredDrinks && s.discoveredDrinks.length >= 1 },
+      monthlyTarget: { name: '月入八千', desc: '小店月收入达到8000元', check: (s) => s.monthStats && s.monthStats.completed }
+    };
+
+    // =====================================================
+    // 游戏状态
+    // =====================================================
+    function createNewState() {
+      return {
+        day: 1,
+        money: 2000,
+        phase: 1,
+        phaseName: '街角推车',
+        reputation: 50,
+        inventory: {
+          blackTea: 0, greenTea: 0, oolongTea: 0, jasmineTea: 0,
+          milk: 0, creamer: 0, tapioca: 0, pudding: 0, coconut: 0,
+          taroBall: 0, passionfruit: 0, sugar: 0, ice: 0, lemon: 0
+        },
+        equipment: {
+          shaker: 1,
+          cooler: 1,
+          sealer: 0,
+          iceMaker: 0,
+          fructose: 0
+        },
+        prices: {
+          milkTea: 12,
+          lemonGreenTea: 10,
+          blackTeaLatte: 13,
+          jasmineTea: 8,
+          puddingMilkTea: 14,
+          passionfruitGreenTea: 13,
+          taroBallMilkTea: 15
+        },
+        regulars: {
+          xiaoying: { level: 0, affinity: 0 },
+          daliu: { level: 0, affinity: 0 },
+          grandpa: { level: 0, affinity: 0 }
+        },
+        achievements: {},
+        totalStats: {
+          cups: 0,
+          revenue: 0,
+          profit: 0,
+          goodReviews: 0
+        },
+        dailyStats: {
+          revenue: 0, cost: 0, cups: 0, satisfaction: 0,
+          customerCount: 0, served: 0, missed: 0, goodReviews: 0, feedback: [],
+          satisfactionSum: 0, businessDone: false
+        },
+        yesterday: null,
+        flags: {
+          introShown: false,
+          canQuickBusiness: false
+        },
+        staff: {
+          hired: null,
+          absentToday: false
+        },
+        discoveredDrinks: [],
+        monthStats: {
+          phase2StartDay: null,
+          revenue: 0,
+          target: 8000,
+          completed: false,
+          reported: false
+        },
+        dayFlags: null,
+        pendingEvent: null,
+        pendingRegular: null,
+        orders: [],
+        orderIndex: 0,
+        lastSettledDay: 0,
+        weather: 'sunny',
+        lastSaved: null
+      };
+    }
+
+    let state = createNewState();
+
+    // =====================================================
+    // 工具函数
+    // =====================================================
+    function $(id) { return document.getElementById(id); }
+    function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+    function formatMoney(n) { return n + '元'; }
+    function setLocation(text) { $('scene-location').textContent = '当前位置：' + text; }
+    function setHeaderPhase(phase) {
+      const header = $('page-header');
+      if (phase >= 2) header.classList.add('shop-phase');
+      else header.classList.remove('shop-phase');
+    }
+    function announce(text) {
+      const ann = document.createElement('div');
+      ann.className = 'sr-only';
+      ann.setAttribute('role', 'status');
+      ann.textContent = text;
+      $('app').appendChild(ann);
+      setTimeout(() => ann.remove(), 1000);
+    }
+
+    // 存档兼容：给旧存档补上新字段
+    function migrateState() {
+      Object.keys(INGREDIENTS).forEach(key => {
+        if (typeof state.inventory[key] !== 'number') state.inventory[key] = 0;
+      });
+      if (!state.equipment.iceMaker) state.equipment.iceMaker = 0;
+      if (state.equipment.fructose === undefined) state.equipment.fructose = 0;
+
+      if (!state.prices) state.prices = {};
+      const defaultPrices = {
+        milkTea: 12, lemonGreenTea: 10, blackTeaLatte: 13, jasmineTea: 8,
+        puddingMilkTea: 14, passionfruitGreenTea: 13, taroBallMilkTea: 15
+      };
+      Object.keys(defaultPrices).forEach(key => {
+        if (typeof state.prices[key] !== 'number') state.prices[key] = defaultPrices[key];
+      });
+      if (!state.dailyStats) {
+        state.dailyStats = {
+          revenue: 0, cost: 0, cups: 0, satisfaction: 0,
+          customerCount: 0, served: 0, missed: 0, goodReviews: 0, feedback: []
+        };
+      }
+      if (state.dailyStats.satisfactionSum === undefined) state.dailyStats.satisfactionSum = 0;
+      if (state.dailyStats.businessDone === undefined) state.dailyStats.businessDone = false;
+      if (state.dailyStats.served === undefined) state.dailyStats.served = 0;
+      if (state.dailyStats.missed === undefined) state.dailyStats.missed = 0;
+      if (!state.orders) state.orders = [];
+      if (state.orderIndex === undefined) state.orderIndex = 0;
+      if (state.lastSettledDay === undefined) state.lastSettledDay = 0;
+      if (!state.staff) state.staff = { hired: null, absentToday: false };
+      if (!state.discoveredDrinks) state.discoveredDrinks = [];
+      if (!state.monthStats) state.monthStats = { phase2StartDay: null, revenue: 0, target: 8000, completed: false, reported: false };
+    }
+
+    // =====================================================
+    // 存档
+    // =====================================================
+    function saveGame() {
+      state.lastSaved = Date.now();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      announce('游戏已自动保存');
+    }
+
+    function loadGame() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try {
+          const saved = JSON.parse(raw);
+          state = Object.assign(createNewState(), saved);
+          migrateState();
+          return true;
+        } catch (e) {
+          console.error('存档读取失败', e);
+        }
+      }
+      return false;
+    }
+
+    function resetGame() {
+      if (confirm('确定要重置存档吗？所有进度将丢失。')) {
+        localStorage.removeItem(STORAGE_KEY);
+        state = createNewState();
+        setHeaderPhase(1);
+        renderStartScreen();
+      }
+    }
+
+    // =====================================================
+    // 渲染引擎
+    // =====================================================
+    function clearApp() {
+      $('app').innerHTML = '';
+      schedulePageSpeech();
+    }
+
+    function el(tag, attrs, children) {
+      const node = document.createElement(tag);
+      if (attrs) {
+        for (const [k, v] of Object.entries(attrs)) {
+          if (k === 'text') node.textContent = v;
+          else if (k === 'html') node.innerHTML = v;
+          else node.setAttribute(k, v);
+        }
+      }
+      if (children) {
+        children.forEach(c => {
+          if (c === null || c === undefined) return;
+          if (typeof c === 'string' || typeof c === 'number') {
+            node.appendChild(document.createTextNode(String(c)));
+          } else {
+            node.appendChild(c);
+          }
+        });
+      }
+      return node;
+    }
+
+    function section(title, children, ariaLabel) {
+      const sec = el('section', { 'aria-label': ariaLabel || title });
+      if (title) sec.appendChild(el('h2', {}, [title]));
+      if (children) children.forEach(c => sec.appendChild(c));
+      $('app').appendChild(sec);
+      return sec;
+    }
+
+    function para(text) { return el('p', {}, [text]); }
+
+    function btn(label, onClick, options) {
+      options = options || {};
+      const classes = [];
+      if (options.secondary) classes.push('secondary');
+      if (options.danger) classes.push('danger');
+      if (options.small) classes.push('small');
+      const b = el('button', {
+        type: 'button',
+        class: classes.join(' '),
+        'aria-label': options.ariaLabel || label
+      }, [label]);
+      if (options.disabled) {
+        b.disabled = true;
+        b.setAttribute('aria-disabled', 'true');
+        b.style.opacity = '0.55';
+        b.style.cursor = 'not-allowed';
+      } else {
+        b.addEventListener('click', () => {
+          if (b.dataset.once === 'true' && b.disabled) return;
+          if (b.dataset.once === 'true') {
+            b.disabled = true;
+            b.style.opacity = '0.6';
+            b.style.cursor = 'wait';
+          }
+          onClick();
+        });
+        if (options.once) b.dataset.once = 'true';
+      }
+      return b;
+    }
+
+    // =====================================================
+    // 成本与价格计算
+    // =====================================================
+    function getIngredientPrice(key, stateOverride) {
+      const s = stateOverride || state;
+      let price = INGREDIENTS[key].price;
+      if (key === 'ice' && s.equipment.iceMaker >= 1) {
+        price = 0;
+      }
+      if (s.dayFlags && s.dayFlags.discount) {
+        price = Math.round(price * s.dayFlags.discount);
+      }
+      if (s.dayFlags && s.dayFlags.priceRise && s.dayFlags.priceRise.ingredient === key) {
+        price = Math.round(price * s.dayFlags.priceRise.rate);
+      }
+      return price;
+    }
+
+    function calcDrinkCost(drinkId, s) {
+      s = s || state;
+      const drink = getAllDrinks(s)[drinkId];
+      if (!drink) return 0;
+      let cost = 0;
+      for (const [ingKey, amount] of Object.entries(drink.ingredients)) {
+        cost += getIngredientPrice(ingKey, s) * amount;
+      }
+      return Math.round(cost);
+    }
+
+    function canMakeDrink(drinkId, s) {
+      s = s || state;
+      const drink = getAllDrinks(s)[drinkId];
+      if (!drink) return false;
+      for (const [ingKey, amount] of Object.entries(drink.ingredients)) {
+        if (s.inventory[ingKey] < amount) return false;
+      }
+      return true;
+    }
+
+    function consumeIngredients(drinkId, s) {
+      s = s || state;
+      const drink = getAllDrinks(s)[drinkId];
+      if (!drink) return;
+      for (const [ingKey, amount] of Object.entries(drink.ingredients)) {
+        s.inventory[ingKey] -= amount;
+      }
+    }
+
+    // =====================================================
+    // 屏幕渲染
+    // =====================================================
+
+    // 开始界面
+    function renderStartScreen() {
+      clearApp();
+      setLocation('游戏开始');
+      setHeaderPhase(state.phase);
+      const hasSave = localStorage.getItem(STORAGE_KEY) !== null;
+
+      if (!state.flags.introShown) {
+        section('故事开始', [
+          para('推车的轮子吱呀响了一声，你停在老槐树下。'),
+          para('翻开奶奶的笔记本，扉页上写着："茶要慢慢泡，日子也是。"'),
+          para('傍晚的风有点凉，街上开始有放学的学生走过。你深吸一口气，摆好了第一只杯子。'),
+          para('今天，就从这里开始吧。')
+        ]);
+      }
+
+      section('主菜单', [
+        btn(hasSave ? '继续游戏（第' + state.day + '天）' : '开始新游戏', () => {
+          if (!state.flags.introShown) state.flags.introShown = true;
+          saveGame();
+          renderMainScreen();
+        }),
+        btn('查看成就', renderAchievementsScreen),
+        btn('游戏说明', renderHelpScreen)
+      ]);
+    }
+
+    // 帮助
+    function renderHelpScreen() {
+      clearApp();
+      setLocation('游戏说明');
+      section('玩法说明', [
+        para('你每天经营街角的奶茶摊。早晨采购原料、设定价格，白天接待顾客，晚上结算收支。'),
+        para('第一阶段目标是在第15天结束前攒够5000元，租下第一家小店。'),
+        para('进入小店后，可以招聘员工、研发新饮品，目标是30天内月收入达到8000元。'),
+        para('原料不足会导致顾客失望，价格太高会降低客流，合理经营才能慢慢积累口碑。')
+      ]);
+      section('操作提示', [
+        para('所有按钮都可以点击，数字输入使用加减按钮。'),
+        para('游戏会自动保存，也可以点击底部"手动保存"按钮。')
+      ]);
+      section('', [btn('返回主菜单', renderStartScreen, { secondary: true })]);
+    }
+
+    // 主界面
+    function renderMainScreen() {
+      clearApp();
+      setLocation(state.phaseName);
+      setHeaderPhase(state.phase);
+
+      let progressText = '';
+      if (state.phase === 1) {
+        progressText = '第一阶段目标：攒够5000元开第一家店。当前资金' + formatMoney(state.money) + '，还差' + formatMoney(Math.max(0, 5000 - state.money)) + '。';
+      } else if (state.phase === 2) {
+        const daysInPhase2 = state.day - state.monthStats.phase2StartDay + 1;
+        const remaining = Math.max(0, 30 - daysInPhase2);
+        progressText = '第二阶段目标：30天内月收入达到8000元。当前月收入' + formatMoney(state.monthStats.revenue) + '，剩余' + remaining + '天。';
+      } else {
+        progressText = '第一版内容已体验完毕，第二版内容敬请期待。';
+      }
+
+      section('今日概览', [
+        el('div', { class: 'status-grid' }, [
+          el('div', { class: 'status-item' }, [el('strong', {}, ['日期']), document.createTextNode('第' + state.day + '天')]),
+          el('div', { class: 'status-item' }, [el('strong', {}, ['资金']), document.createTextNode(formatMoney(state.money))]),
+          el('div', { class: 'status-item' }, [el('strong', {}, ['口碑']), document.createTextNode(state.reputation + '分')])
+        ]),
+        para(progressText)
+      ]);
+
+      const ds = state.dailyStats || {};
+      const inBusiness = !!state.dayFlags && state.orders && state.orders.length > 0 && state.orderIndex < state.orders.length;
+      const businessDone = !!ds.businessDone && !!state.dayFlags;
+
+      let firstAction;
+      if (businessDone) {
+        firstAction = btn('查看今日结算', settleDay, { ariaLabel: '今天的营业已经结束，查看今日结算' });
+      } else if (inBusiness) {
+        firstAction = btn('继续今日营业（还剩' + (state.orders.length - state.orderIndex) + '位顾客）', renderOrderScreen, {
+          ariaLabel: '继续今日营业，还剩' + (state.orders.length - state.orderIndex) + '位顾客'
+        });
+      } else {
+        firstAction = btn('开始今日营业', renderMorningScreen, { ariaLabel: '开始今日营业，进入早晨准备' });
+      }
+
+      const mainActions = [
+        firstAction,
+        btn('查看库存与设备', renderInventoryScreen, { secondary: true }),
+        btn('设定饮品价格', renderPriceScreen, { secondary: true }),
+        btn('升级设备', renderEquipmentScreen, { secondary: true }),
+        btn('查看成就', renderAchievementsScreen, { secondary: true })
+      ];
+
+      if (state.phase >= 2) {
+        mainActions.splice(2, 0, btn('招聘员工', renderStaffScreen, { secondary: true }));
+        mainActions.splice(3, 0, btn('研发新饮品', renderResearchScreen, { secondary: true }));
+      }
+
+      section('主要操作', mainActions);
+
+      if (state.yesterday) {
+        section('昨日回顾', [
+          para('昨日营业额' + formatMoney(state.yesterday.revenue) + '，成本' + formatMoney(state.yesterday.cost) + '，利润' + formatMoney(state.yesterday.profit) + '。'),
+          para('昨日售出' + state.yesterday.cups + '杯，顾客满意度' + state.yesterday.satisfaction + '分。')
+        ]);
+      }
+    }
+
+    // 早晨准备
+    function renderMorningScreen() {
+      clearApp();
+      setLocation(state.phase >= 2 ? '开店前准备' : '早晨准备');
+
+      let spoilReport = [];
+      let justStarted = false;
+
+      // 只有第一次进入早晨准备时才初始化当天数据并计算损耗
+      if (!state.dayFlags) {
+        justStarted = true;
+        state.dayFlags = {
+          customerMultiplier: 1,
+          drinkBias: { milkTea: 0, lemonGreenTea: 0, blackTeaLatte: 0, jasmineTea: 0, puddingMilkTea: 0, passionfruitGreenTea: 0, taroBallMilkTea: 0 },
+          discount: 1,
+          priceRise: null,
+          bonus: 0,
+          eventName: '',
+          eventDesc: ''
+        };
+        state.weather = pickWeather();
+
+        // 损耗原料
+        const spoilRate = state.equipment.cooler === 2 ? 0.04 : 0.10;
+        for (const key of Object.keys(state.inventory)) {
+          if (state.inventory[key] > 0) {
+            const before = state.inventory[key];
+            state.inventory[key] = Math.max(0, +(state.inventory[key] * (1 - spoilRate)).toFixed(2));
+            const lost = +(before - state.inventory[key]).toFixed(2);
+            if (lost > 0.01) spoilReport.push(INGREDIENTS[key].name + '损耗' + lost.toFixed(2) + INGREDIENTS[key].unit);
+          }
+        }
+
+        // 制冰机每日产出
+        if (state.equipment.iceMaker >= 1) {
+          state.inventory.ice += 3;
+        }
+
+        // 员工今日是否出勤
+        if (state.staff.hired) {
+          const st = state.staff.hired;
+          state.staff.absentToday = Math.random() * 100 > st.stability;
+        }
+      }
+
+      const greeting = state.phase >= 2
+        ? (justStarted ? '小店即将开门，今天也要用心经营。' : '今天已经准备就绪，继续营业前的安排吧。')
+        : (justStarted ? '新的一天开始了。在营业前，你可以采购原料、检查设备，或者调整今日价格。' : '今天已经准备就绪，继续营业前的安排吧。');
+
+      section(state.phase >= 2 ? '清晨，15平米小店' : '早晨六点，老槐树下', [
+        para('天气：' + weatherText(state.weather) + '。'),
+        para(greeting),
+        spoilReport.length > 0 ? para('昨夜损耗：' + spoilReport.join('，') + '。') : (justStarted ? para('昨夜没有原料损耗。') : null),
+        state.equipment.iceMaker >= 1 && justStarted ? para('制冰机昨夜自动制作了3袋冰块。') : null,
+        state.staff.hired ? para('今日员工：' + state.staff.hired.name + (state.staff.absentToday ? '今天请假，需要你亲自上阵。' : '正常出勤。')) : null
+      ].filter(Boolean));
+
+      section('今日计划', [
+        btn('采购原料', renderPurchaseScreen),
+        btn('设定饮品价格', renderPriceScreen),
+        btn('升级设备', renderEquipmentScreen),
+        state.phase >= 2 ? btn('招聘员工', renderStaffScreen) : null,
+        state.phase >= 2 ? btn('研发新饮品', renderResearchScreen) : null,
+        state.dailyStats.businessDone
+          ? btn('查看今日结算', settleDay)
+          : btn('开始接待顾客', startBusiness),
+        btn('返回主界面', renderMainScreen, { secondary: true })
+      ].filter(Boolean));
+    }
+
+    function weatherText(w) {
+      if (w === 'sunny') return '晴朗，适合出摊';
+      if (w === 'hot') return '炎热，冷饮需求高';
+      if (w === 'rainy') return '阴雨，客流可能减少';
+      return w;
+    }
+
+    function pickWeather() {
+      const r = Math.random();
+      if (r < 0.15) return 'rainy';
+      if (r < 0.45) return 'hot';
+      return 'sunny';
+    }
+
+    // 采购界面
+    let purchaseCart = {};
+    function renderPurchaseScreen() {
+      clearApp();
+      setLocation('采购原料');
+      purchaseCart = {};
+      for (const key of Object.keys(INGREDIENTS)) purchaseCart[key] = 0;
+
+      section('当前资金：' + formatMoney(state.money), []);
+
+      const list = el('ul', { style: 'list-style:none;padding-left:0;' });
+      for (const [key, ing] of Object.entries(INGREDIENTS)) {
+        if (key === 'ice' && state.equipment.iceMaker >= 1) continue;
+        const price = getIngredientPrice(key);
+        const current = state.inventory[key].toFixed(2);
+        const li = el('li', { style: 'margin:0.75rem 0; border-bottom:1px solid #eee; padding-bottom:0.5rem;' });
+        li.appendChild(el('strong', {}, [ing.name + '，单价' + formatMoney(price) + ' / ' + ing.unit]));
+        li.appendChild(para('当前库存：' + current + ing.unit));
+        const ctrl = el('div', { class: 'quantity-control' });
+        const valSpan = el('span', { class: 'quantity-value', id: 'qty-' + key }, ['0']);
+        ctrl.appendChild(btn('-', () => adjustPurchase(key, -1, valSpan, totalSpan), { small: true, ariaLabel: '减少' + ing.name + '采购量' }));
+        ctrl.appendChild(valSpan);
+        ctrl.appendChild(btn('+', () => adjustPurchase(key, 1, valSpan, totalSpan), { small: true, ariaLabel: '增加' + ing.name + '采购量' }));
+        li.appendChild(ctrl);
+        list.appendChild(li);
+      }
+      if (state.equipment.iceMaker >= 1) {
+        const iceLi = el('li', { style: 'margin:0.75rem 0; border-bottom:1px solid #eee; padding-bottom:0.5rem;' });
+        iceLi.appendChild(el('strong', {}, ['冰块（制冰机自动供应）']));
+        iceLi.appendChild(para('当前库存：' + state.inventory.ice.toFixed(2) + '袋。制冰机每天自动生成3袋冰块，无需采购。'));
+        list.appendChild(iceLi);
+      }
+      $('app').appendChild(section('原料列表', [list]));
+
+      const totalSpan = el('span', {}, ['0']);
+      section('采购合计', [
+        el('p', {}, ['预计花费：', totalSpan, '元']),
+        btn('确认采购', confirmPurchase),
+        btn('返回早晨准备', renderMorningScreen, { secondary: true })
+      ]);
+    }
+
+    function adjustPurchase(key, delta, valSpan, totalSpan) {
+      purchaseCart[key] = Math.max(0, purchaseCart[key] + delta);
+      valSpan.textContent = purchaseCart[key];
+      updatePurchaseTotal(totalSpan);
+    }
+
+    function updatePurchaseTotal(totalSpan) {
+      let total = 0;
+      for (const [key, qty] of Object.entries(purchaseCart)) {
+        total += qty * getIngredientPrice(key);
+      }
+      totalSpan.textContent = total;
+    }
+
+    function confirmPurchase() {
+      let total = 0;
+      for (const [key, qty] of Object.entries(purchaseCart)) {
+        total += qty * getIngredientPrice(key);
+      }
+      if (total > state.money) {
+        alert('资金不足，无法完成采购。当前资金' + formatMoney(state.money) + '，需要' + formatMoney(total) + '。');
+        return;
+      }
+      state.money -= total;
+      for (const [key, qty] of Object.entries(purchaseCart)) {
+        state.inventory[key] += qty;
+      }
+      saveGame();
+      clearApp();
+      setLocation('采购完成');
+      section('采购成功', [
+        para('本次采购共花费' + formatMoney(total) + '。'),
+        para('剩余资金' + formatMoney(state.money) + '。'),
+        btn('继续采购', renderPurchaseScreen, { secondary: true }),
+        btn('返回早晨准备', renderMorningScreen)
+      ]);
+    }
+
+    // 库存与设备
+    function renderInventoryScreen() {
+      clearApp();
+      setLocation('库存与设备');
+      const invList = el('ul');
+      for (const [key, ing] of Object.entries(INGREDIENTS)) {
+        invList.appendChild(el('li', {}, [ing.name + '：' + state.inventory[key].toFixed(2) + ing.unit]));
+      }
+      section('当前库存', [invList]);
+
+      const eqList = el('ul');
+      for (const [key, eq] of Object.entries(EQUIPMENT)) {
+        const lvl = state.equipment[key];
+        const item = eq.levels.find(l => l.level === lvl);
+        eqList.appendChild(el('li', {}, [eq.name + '：' + item.name + '。' + item.desc]));
+      }
+      section('当前设备', [eqList]);
+
+      if (state.staff.hired) {
+        const st = state.staff.hired;
+        section('当前员工', [
+          para('姓名：' + st.name + '，' + st.title),
+          para('日薪：' + formatMoney(st.salary)),
+          para('制作速度加成：' + st.speed + '%，服务态度加成：' + st.service + '%，稳定性：' + st.stability + '%。')
+        ]);
+      }
+
+      section('', [btn('返回主界面', renderMainScreen)]);
+    }
+
+    // 价格设定
+    function renderPriceScreen() {
+      clearApp();
+      setLocation('设定饮品价格');
+
+      const list = el('ul', { style: 'list-style:none;padding-left:0;' });
+      const drinks = getAllDrinks();
+      for (const [key, drink] of Object.entries(drinks)) {
+        const cost = calcDrinkCost(key);
+        const isNew = !BASE_DRINKS[key];
+        const li = el('li', { style: 'margin:0.75rem 0; border-bottom:1px solid #eee; padding-bottom:0.5rem;' });
+        const title = el('strong', {}, [drink.name]);
+        if (isNew) {
+          const tag = el('span', { style: 'display:inline-block;margin-left:0.5rem;padding:0.1rem 0.4rem;background:#3d5a48;color:#fff;border-radius:4px;font-size:0.8rem;' }, ['新品']);
+          title.appendChild(tag);
+        }
+        li.appendChild(title);
+        li.appendChild(para('成本约' + formatMoney(cost) + '，基础售价' + formatMoney(drink.basePrice) + '。' + (isNew ? '（研发解锁的新饮品）' : '')));
+        const current = el('span', { class: 'quantity-value', id: 'price-' + key }, [state.prices[key]]);
+        const ctrl = el('div', { class: 'quantity-control' });
+        ctrl.appendChild(btn('-', () => adjustPrice(key, -1, current), { small: true, ariaLabel: '降低' + drink.name + '价格' }));
+        ctrl.appendChild(current);
+        ctrl.appendChild(btn('+', () => adjustPrice(key, 1, current), { small: true, ariaLabel: '提高' + drink.name + '价格' }));
+        li.appendChild(ctrl);
+        list.appendChild(li);
+      }
+      $('app').appendChild(section('饮品价格', [list]));
+      section('', [
+        btn('保存价格并返回', () => { saveGame(); renderMainScreen(); })
+      ]);
+    }
+
+    function adjustPrice(key, delta, span) {
+      state.prices[key] = Math.max(3, state.prices[key] + delta);
+      span.textContent = state.prices[key];
+    }
+
+    // 设备升级
+    function renderEquipmentScreen() {
+      clearApp();
+      setLocation('升级设备');
+      section('当前资金：' + formatMoney(state.money), []);
+
+      for (const [key, eq] of Object.entries(EQUIPMENT)) {
+        const currentLevel = state.equipment[key];
+        const next = eq.levels.find(l => l.level === currentLevel + 1);
+        const current = eq.levels.find(l => l.level === currentLevel);
+        const children = [
+          el('h3', {}, [eq.name]),
+          para('当前：' + current.name + '。' + current.desc)
+        ];
+        if (next) {
+          children.push(para('下一级：' + next.name + '，需要' + formatMoney(next.price) + '。' + next.desc));
+          children.push(btn('升级到' + next.name + '（花费' + formatMoney(next.price) + '）', () => buyEquipment(key, next)));
+        } else {
+          children.push(para('已升到最高级。'));
+        }
+        section('', children);
+      }
+
+      section('', [btn('返回', renderMainScreen, { secondary: true })]);
+    }
+
+    function buyEquipment(key, next) {
+      if (state.money < next.price) {
+        alert('资金不足，无法升级。');
+        return;
+      }
+      state.money -= next.price;
+      state.equipment[key] = next.level;
+      saveGame();
+      clearApp();
+      setLocation('升级成功');
+      section('升级成功', [
+        para(EQUIPMENT[key].name + '已升级到' + next.name + '。'),
+        para(next.desc),
+        para('当前资金：' + formatMoney(state.money) + '。'),
+        btn('继续升级', renderEquipmentScreen),
+        btn('返回主界面', renderMainScreen, { secondary: true })
+      ]);
+    }
+
+    // 招聘员工
+    function renderStaffScreen() {
+      clearApp();
+      setLocation('招聘员工');
+
+      if (state.staff.hired) {
+        const st = state.staff.hired;
+        section('当前员工', [
+          para('姓名：' + st.name + '，' + st.title),
+          para('日薪：' + formatMoney(st.salary)),
+          para('制作速度加成：' + st.speed + '%'),
+          para('服务态度加成：' + st.service + '%'),
+          para('稳定性：' + st.stability + '%'),
+          para(st.desc),
+          btn('解雇当前员工（重新招聘）', () => {
+            if (confirm('确定要解雇' + st.name + '吗？')) {
+              state.staff.hired = null;
+              saveGame();
+              renderStaffScreen();
+            }
+          }, { danger: true }),
+          btn('返回主界面', renderMainScreen, { secondary: true })
+        ]);
+        return;
+      }
+
+      section('选择你的第一位员工', [
+        para('小店开张后，你一个人忙不过来。招一名员工帮忙吧。')
+      ]);
+
+      STAFF_CANDIDATES.forEach(candidate => {
+        section(candidate.name + ' - ' + candidate.title, [
+          para(candidate.desc),
+          para('日薪' + formatMoney(candidate.salary) + '，制作速度' + candidate.speed + '%，服务态度' + candidate.service + '%，稳定性' + candidate.stability + '%。'),
+          btn('招聘' + candidate.name + '（日薪' + formatMoney(candidate.salary) + '）', () => hireStaff(candidate))
+        ]);
+      });
+
+      section('', [btn('返回主界面', renderMainScreen, { secondary: true })]);
+    }
+
+    function hireStaff(candidate) {
+      if (state.money < candidate.salary * 7) {
+        alert('资金不足，建议至少预留一周工资。当前资金' + formatMoney(state.money) + '。');
+        return;
+      }
+      state.staff.hired = Object.assign({}, candidate, { daysWorked: 0 });
+      saveGame();
+      clearApp();
+      setLocation('招聘成功');
+      section('招聘成功', [
+        para('你雇佣了' + candidate.name + '作为小店的第一位员工。'),
+        para(candidate.desc),
+        para('从今天开始，每天营业结束后需要支付日薪' + formatMoney(candidate.salary) + '。'),
+        btn('返回主界面', renderMainScreen)
+      ]);
+    }
+
+    // 研发新饮品
+    let researchSelection = { base: 'blackTea', topping1: 'none', topping2: 'none', topping3: 'none' };
+    function renderResearchScreen() {
+      clearApp();
+      setLocation('研发新饮品');
+
+      const undiscovered = Object.keys(RESEARCHABLE_DRINKS).filter(id => !state.discoveredDrinks.includes(id));
+      if (undiscovered.length === 0) {
+        section('研发完成', [
+          para('你已经研发出了当前所有可解锁的饮品。'),
+          btn('返回主界面', renderMainScreen)
+        ]);
+        return;
+      }
+
+      section('尝试新配方', [
+        para('选择一种茶底和若干配料，消耗原料进行研发。成功后会加入菜单。')
+      ]);
+
+      const teaOptions = [
+        { value: 'blackTea', text: '红茶' },
+        { value: 'greenTea', text: '绿茶' },
+        { value: 'oolongTea', text: '乌龙茶' },
+        { value: 'jasmineTea', text: '茉莉花茶' }
+      ];
+      const toppingOptions = [
+        { value: 'none', text: '不选' },
+        { value: 'tapioca', text: '珍珠' },
+        { value: 'pudding', text: '布丁' },
+        { value: 'coconut', text: '椰果' },
+        { value: 'taroBall', text: '芋圆' },
+        { value: 'passionfruit', text: '百香果' },
+        { value: 'lemon', text: '柠檬' }
+      ];
+
+      const form = el('div');
+      form.appendChild(labelWithSelect('茶底', 'research-base', teaOptions, researchSelection.base, v => researchSelection.base = v));
+      form.appendChild(labelWithSelect('配料一', 'research-top1', toppingOptions, researchSelection.topping1, v => researchSelection.topping1 = v));
+      form.appendChild(labelWithSelect('配料二', 'research-top2', toppingOptions, researchSelection.topping2, v => researchSelection.topping2 = v));
+      form.appendChild(labelWithSelect('配料三', 'research-top3', toppingOptions, researchSelection.topping3, v => researchSelection.topping3 = v));
+
+      $('app').appendChild(section('配方选择', [form]));
+      section('', [
+        btn('开始研发', doResearch),
+        btn('返回主界面', renderMainScreen, { secondary: true })
+      ]);
+    }
+
+    function labelWithSelect(labelText, id, options, value, onChange) {
+      const wrap = el('div');
+      wrap.appendChild(el('label', { for: id }, [labelText]));
+      const sel = el('select', { id: id });
+      options.forEach(opt => {
+        const o = el('option', { value: opt.value }, [opt.text]);
+        if (opt.value === value) o.setAttribute('selected', 'selected');
+        sel.appendChild(o);
+      });
+      sel.addEventListener('change', (e) => onChange(e.target.value));
+      wrap.appendChild(sel);
+      return wrap;
+    }
+
+    function doResearch() {
+      const selectedToppings = [researchSelection.topping1, researchSelection.topping2, researchSelection.topping3]
+        .filter(v => v !== 'none')
+        .sort();
+      const base = researchSelection.base;
+
+      // 计算消耗
+      const costIngredients = { [base]: INGREDIENTS[base].baseUse, sugar: 0.02, ice: 0.5 };
+      selectedToppings.forEach(top => {
+        costIngredients[top] = (costIngredients[top] || 0) + INGREDIENTS[top].baseUse;
+      });
+
+      // 检查库存
+      for (const [key, amount] of Object.entries(costIngredients)) {
+        if (state.inventory[key] < amount) {
+          alert('原料不足，无法研发。缺少' + INGREDIENTS[key].name + '。');
+          return;
+        }
+      }
+
+      // 扣除原料
+      for (const [key, amount] of Object.entries(costIngredients)) {
+        state.inventory[key] -= amount;
+      }
+
+      // 检查是否匹配配方
+      let discoveredId = null;
+      for (const [id, drink] of Object.entries(RESEARCHABLE_DRINKS)) {
+        if (state.discoveredDrinks.includes(id)) continue;
+        const drinkBase = Object.keys(drink.ingredients).find(k => ['blackTea', 'greenTea', 'oolongTea', 'jasmineTea'].includes(k));
+        const drinkToppings = Object.keys(drink.ingredients)
+          .filter(k => !['blackTea', 'greenTea', 'oolongTea', 'jasmineTea', 'milk', 'creamer', 'sugar', 'ice'].includes(k))
+          .sort();
+        if (drinkBase === base && JSON.stringify(drinkToppings) === JSON.stringify(selectedToppings)) {
+          discoveredId = id;
+          break;
+        }
+      }
+
+      saveGame();
+      clearApp();
+      setLocation('研发结果');
+
+      if (discoveredId) {
+        state.discoveredDrinks.push(discoveredId);
+        const drink = RESEARCHABLE_DRINKS[discoveredId];
+        section('研发成功', [
+          para('你成功调配出了' + drink.name + '。'),
+          para('这款饮品已加入菜单，顾客现在可以点单了。'),
+          para('建议售价' + formatMoney(drink.basePrice) + '，成本约' + formatMoney(calcDrinkCost(discoveredId)) + '。'),
+          btn('继续研发', renderResearchScreen),
+          btn('返回主界面', renderMainScreen, { secondary: true })
+        ]);
+      } else {
+        section('研发失败', [
+          para('这次尝试没有调出满意的口味。'),
+          para(randomResearchFeedback(base, selectedToppings)),
+          btn('再试一次', renderResearchScreen),
+          btn('返回主界面', renderMainScreen, { secondary: true })
+        ]);
+      }
+      saveGame();
+    }
+
+    function randomResearchFeedback(base, toppings) {
+      const msgs = [
+        '茶味和配料搭配得有点奇怪，再调整一下比例吧。',
+        '甜度不太对，可能是糖放多了。',
+        '口感不够顺滑，换种奶底试试。',
+        '味道太淡了，顾客可能觉得不值这个价。',
+        '这个组合有点普通，没有让人记住的亮点。'
+      ];
+      return msgs[randInt(0, msgs.length - 1)];
+    }
+
+    // =====================================================
+    // 营业系统（接单式）
+    // =====================================================
+    const CUSTOMER_DESCRIPTIONS = [
+      '一位背着书包的女生',
+      '一位戴着耳机的男生',
+      '一位提着公文包的上班族',
+      '一位推着婴儿车的年轻妈妈',
+      '一位穿着校服的中学生',
+      '一位戴着安全帽的工人',
+      '一位遛狗的老先生',
+      '一位抱着快递箱的快递员',
+      '一位刚从菜市场回来的阿姨',
+      '一位低头看手机的年轻人'
+    ];
+
+    function startBusiness() {
+      if (state.dailyStats.businessDone) {
+        settleDay();
+        return;
+      }
+
+      // 触发随机事件
+      const ev = pickRandomEvent();
+      state.pendingEvent = ev || null;
+      state.dayFlags.eventName = ev ? ev.name : '';
+      state.dayFlags.eventDesc = ev ? ev.desc : '';
+      // 非选择型事件立即生效，选择型事件等玩家决定
+      if (ev && ev.type !== 'choice' && ev.effect) ev.effect(state);
+
+      // 常客触发
+      state.pendingRegular = pickRegular();
+
+      // 生成今日订单
+      generateOrders();
+      state.orderIndex = 0;
+      state.dailyStats.businessDone = false;
+      saveGame();
+
+      if (ev && ev.type === 'choice') {
+        renderEventChoiceScreen();
+      } else {
+        renderOrderScreen();
+      }
+    }
+
+    // 根据客流生成当天订单，顾客只会点已经解锁的饮品
+    function generateOrders() {
+      if (state.weather === 'hot') {
+        state.dayFlags.drinkBias.lemonGreenTea += 15;
+        state.dayFlags.drinkBias.jasmineTea += 5;
+        state.dayFlags.drinkBias.passionfruitGreenTea += 10;
+      } else if (state.weather === 'rainy') {
+        state.dayFlags.customerMultiplier *= 0.7;
+      }
+
+      let baseCustomers = state.phase >= 2 ? 18 : 12;
+      baseCustomers += Math.floor(state.reputation / 8);
+      if (state.day > 7) baseCustomers += 3;
+      if (state.weather === 'hot') baseCustomers += 5;
+
+      let staffMultiplier = 1;
+      if (state.staff.hired && !state.staff.absentToday) {
+        staffMultiplier += state.staff.hired.speed / 100;
+      }
+
+      let count = Math.round(baseCustomers * state.dayFlags.customerMultiplier * staffMultiplier);
+      count = clamp(count, 3, 35);
+
+      const drinks = getAllDrinks();
+      const orders = [];
+      for (let i = 0; i < count; i++) {
+        orders.push({
+          drinkId: chooseDrink(drinks),
+          customer: CUSTOMER_DESCRIPTIONS[randInt(0, CUSTOMER_DESCRIPTIONS.length - 1)],
+          status: 'pending',
+          resultText: ''
+        });
+      }
+
+      state.orders = orders;
+      const ds = state.dailyStats;
+      ds.customerCount = count;
+      ds.served = 0;
+      ds.missed = 0;
+      ds.satisfactionSum = 0;
+      ds.revenue = 0;
+      ds.cost = 0;
+      ds.cups = 0;
+      ds.goodReviews = 0;
+      ds.feedback = [];
+      ds.satisfaction = 0;
+    }
+
+    // 选择型事件
+    function renderEventChoiceScreen() {
+      clearApp();
+      setLocation('营业中的事件');
+      const ev = state.pendingEvent;
+
+      section(ev.name, [para(ev.desc)]);
+      const choices = ev.choices.map(c => btn(c.label, () => {
+        if (c.effect) c.effect(state);
+        state.pendingEvent.resolved = true;
+        saveGame();
+        renderOrderScreen();
+      }));
+      section('你需要做出选择', choices);
+      section('', [btn('返回主界面', renderMainScreen, { secondary: true })]);
+    }
+
+    // 接单界面
+    function renderOrderScreen() {
+      clearApp();
+      setLocation('营业中');
+
+      const orders = state.orders || [];
+      const idx = state.orderIndex;
+
+      if (idx >= orders.length) {
+        renderBusinessEnd();
+        return;
+      }
+
+      if (state.dayFlags.eventName) {
+        section('今日事件', [
+          para(state.dayFlags.eventName + '：' + state.dayFlags.eventDesc)
+        ]);
+      }
+
+      // 上一位顾客的结果放在最前面
+      if (idx > 0 && orders[idx - 1]) {
+        section('上一位顾客', [para(orders[idx - 1].resultText)]);
+      }
+
+      const ds = state.dailyStats;
+      section('今日进度', [
+        para('已接待' + idx + '位顾客，今天共有' + orders.length + '位顾客。'),
+        para('已售出' + ds.cups + '杯，当前营业额' + formatMoney(ds.revenue) + '。')
+      ]);
+
+      const order = orders[idx];
+      const drink = getAllDrinks()[order.drinkId];
+      const price = state.prices[order.drinkId];
+      const cost = calcDrinkCost(order.drinkId);
+      const canMake = canMakeDrink(order.drinkId);
+
+      section('第' + (idx + 1) + '位顾客', [
+        para(order.customer + '走到摊前。'),
+        para('"老板，来一杯' + drink.name + '。"'),
+        para('售价' + formatMoney(price) + '，这杯的原料成本约' + formatMoney(cost) + '。')
+      ]);
+
+      if (canMake) {
+        section('你要怎么做', [
+          btn('制作' + drink.name + '（消耗原料，收入' + formatMoney(price) + '）', () => makeOrder(true), {
+            ariaLabel: '制作' + drink.name + '，从库存扣除原料，收入' + formatMoney(price)
+          })
+        ]);
+      } else {
+        const lackList = [];
+        for (const [ingKey, amount] of Object.entries(drink.ingredients)) {
+          if (state.inventory[ingKey] < amount) {
+            const need = (amount - state.inventory[ingKey]).toFixed(2);
+            lackList.push(INGREDIENTS[ingKey].name + '还差' + need + INGREDIENTS[ingKey].unit);
+          }
+        }
+        section('原料不足', [
+          para('你清点了一下库存，这杯' + drink.name + '做不出来。缺少的原料有：'),
+          el('ul', {}, lackList.map(t => el('li', {}, [t]))),
+          btn('告诉顾客今天卖完了', () => makeOrder(false))
+        ]);
+      }
+    }
+
+    // 处理一位顾客的订单
+    function makeOrder(success) {
+      const order = state.orders[state.orderIndex];
+      const drink = getAllDrinks()[order.drinkId];
+      const ds = state.dailyStats;
+
+      if (success && canMakeDrink(order.drinkId)) {
+        consumeIngredients(order.drinkId);
+        const price = state.prices[order.drinkId];
+        const cost = calcDrinkCost(order.drinkId);
+        const sat = calcSatisfaction(order.drinkId);
+
+        ds.revenue += price;
+        ds.cost += cost;
+        ds.cups += 1;
+        ds.served += 1;
+        ds.satisfactionSum += sat;
+        state.totalStats.cups += 1;
+
+        if (sat >= 80) {
+          ds.goodReviews += 1;
+          state.totalStats.goodReviews += 1;
+        }
+
+        const fb = randomFeedback(order.drinkId, sat);
+        ds.feedback.push(fb);
+        order.status = 'sold';
+        order.resultText = '你做好了' + drink.name + '，顾客支付' + formatMoney(price) + '。顾客说："' + fb + '"';
+      } else {
+        ds.missed += 1;
+        order.status = 'missed';
+        order.resultText = '你告诉顾客' + drink.name + '今天卖完了，顾客有些失望地离开了。';
+      }
+
+      state.orderIndex += 1;
+      ds.satisfaction = ds.served > 0 ? Math.round(ds.satisfactionSum / ds.served) : 0;
+      saveGame();
+      renderOrderScreen();
+    }
+
+    // 营业结束
+    function renderBusinessEnd() {
+      clearApp();
+      setLocation('营业结束');
+
+      const ds = state.dailyStats;
+      ds.satisfaction = ds.served > 0 ? Math.round(ds.satisfactionSum / ds.served) : 0;
+      ds.businessDone = true;
+      saveGame();
+
+      // 常客剧情在营业结束后触发
+      if (state.pendingRegular) {
+        renderRegularEncounter();
+        return;
+      }
+
+      section('今日营业结束', [
+        para('今天共有' + state.orders.length + '位顾客上门。'),
+        para('你成功售出' + ds.cups + '杯，' + (ds.missed > 0 ? '因缺货流失' + ds.missed + '位顾客。' : '没有流失顾客。')),
+        para('营业额' + formatMoney(ds.revenue) + '，原料成本' + formatMoney(ds.cost) + '。'),
+        btn('查看今日结算', settleDay)
+      ]);
+    }
+
+    function pickRandomEvent() {
+      const total = RANDOM_EVENTS.reduce((sum, e) => sum + e.weight, 0);
+      let r = Math.random() * total;
+      for (const ev of RANDOM_EVENTS) {
+        r -= ev.weight;
+        if (r <= 0) return ev;
+      }
+      return null;
+    }
+
+    function pickRegular() {
+      if (Math.random() > 0.35) return null;
+      const pool = Object.values(REGULARS).filter(reg => state.regulars[reg.id].level < reg.maxLevel);
+      if (pool.length === 0) return null;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function chooseDrink(drinks) {
+      const weights = [];
+      let total = 0;
+      for (const [key, drink] of Object.entries(drinks)) {
+        let w = drink.popularity + (state.dayFlags.drinkBias[key] || 0);
+        w = Math.max(5, w);
+        weights.push({ id: key, weight: w });
+        total += w;
+      }
+      let r = Math.random() * total;
+      for (const item of weights) {
+        r -= item.weight;
+        if (r <= 0) return item.id;
+      }
+      return weights[0].id;
+    }
+
+    function calcSatisfaction(drinkId) {
+      const drink = getAllDrinks()[drinkId];
+      const price = state.prices[drinkId];
+      let sat = 70;
+      // 价格因素
+      if (price > drink.basePrice * 1.3) sat -= 15;
+      else if (price > drink.basePrice * 1.1) sat -= 5;
+      else if (price < drink.basePrice * 0.9) sat += 5;
+      // 设备加成
+      if (state.equipment.shaker >= 2) sat += 5;
+      if (state.equipment.sealer >= 1) sat += 3;
+      if (state.equipment.fructose >= 1) sat += 4;
+      // 员工服务加成
+      if (state.staff.hired && !state.staff.absentToday) sat += Math.floor(state.staff.hired.service / 5);
+      // 口碑
+      sat += Math.floor(state.reputation / 30);
+      // 随机
+      sat += randInt(-5, 5);
+      return clamp(sat, 30, 100);
+    }
+
+    function randomFeedback(drinkId, sat) {
+      const drinkName = getAllDrinks()[drinkId].name;
+      const good = [
+        drinkName + '味道不错，下次还来。',
+        '甜度刚好，老板很用心。',
+        '价格实惠，分量也足。',
+        '这杯茶让人心情变好了。'
+      ];
+      const mid = [
+        drinkName + '还可以，但没有特别惊喜。',
+        '等得稍微久了点。',
+        '味道还行，希望再多些选择。'
+      ];
+      const bad = [
+        drinkName + '有点淡了。',
+        '价格偏贵，不值这个价。',
+        '杯子没封好，洒了一点。'
+      ];
+      if (sat >= 80) return good[randInt(0, good.length - 1)];
+      if (sat >= 55) return mid[randInt(0, mid.length - 1)];
+      return bad[randInt(0, bad.length - 1)];
+    }
+
+    // 常客剧情
+    function renderRegularEncounter() {
+      clearApp();
+      setLocation('常客剧情');
+      const reg = state.pendingRegular;
+      const regState = state.regulars[reg.id];
+
+      // 剧情已完结，不再重复展示，直接进入结算
+      if (regState.level >= reg.maxLevel) {
+        state.pendingRegular = null;
+        saveGame();
+        settleDay();
+        return;
+      }
+
+      const storyText = reg.story[regState.level] || reg.story[reg.story.length - 1];
+
+      section(reg.name + ' - ' + reg.title, [
+        para(reg.desc),
+        para(storyText)
+      ]);
+
+      if (regState.level < reg.maxLevel) {
+        section('你的回应', [
+          btn('亲切关心', () => resolveRegular(reg, 15)),
+          btn('默默支持', () => resolveRegular(reg, 8)),
+          btn('正常招待', () => resolveRegular(reg, 3)),
+          btn('跳过剧情，直接结算', () => {
+            state.pendingRegular = null;
+            saveGame();
+            settleDay();
+          }, { secondary: true })
+        ]);
+      } else {
+        section('', [btn('剧情已完结，继续', settleDay)]);
+      }
+    }
+
+    function resolveRegular(reg, affinityGain) {
+      const regState = state.regulars[reg.id];
+      regState.affinity += affinityGain;
+      const threshold = 20 * (regState.level + 1);
+      if (regState.affinity >= threshold && regState.level < reg.maxLevel) {
+        regState.level += 1;
+        regState.affinity = 0;
+      }
+      state.reputation += 2;
+      state.pendingRegular = null;
+      saveGame();
+      clearApp();
+      setLocation('回应' + reg.name);
+      section('互动结果', [
+        para('你与' + reg.name + '的互动让她感到温暖。口碑增加2分。'),
+        regState.level >= reg.maxLevel ? para('【剧情完结】' + reg.name + '的故事暂时告一段落。') : para('距离下一段剧情还需' + (threshold - regState.affinity) + '好感度。'),
+        btn('查看今日结算', settleDay)
+      ]);
+    }
+
+    // 晚间结算
+    function settleDay() {
+      // 防止同一天重复结算
+      if (state.lastSettledDay === state.day) {
+        renderMainScreen();
+        return;
+      }
+      state.lastSettledDay = state.day;
+
+      clearApp();
+      setLocation('晚间结算');
+
+      const profit = state.dailyStats.revenue - state.dailyStats.cost;
+      state.money += state.dailyStats.revenue;
+      state.totalStats.revenue += state.dailyStats.revenue;
+      state.totalStats.profit += profit;
+
+      // 口碑变化
+      if (state.dailyStats.satisfaction >= 80) state.reputation += 3;
+      else if (state.dailyStats.satisfaction >= 60) state.reputation += 1;
+      else state.reputation -= 1;
+      state.reputation = clamp(state.reputation, 0, 100);
+
+      // 员工工资
+      let salaryCost = 0;
+      if (state.staff.hired && !state.staff.absentToday) {
+        salaryCost = state.staff.hired.salary;
+        state.money -= salaryCost;
+        state.staff.hired.daysWorked = (state.staff.hired.daysWorked || 0) + 1;
+      }
+
+      // 第二阶段月收入统计
+      if (state.phase === 2) {
+        state.monthStats.revenue += state.dailyStats.revenue;
+      }
+
+      state.yesterday = {
+        revenue: state.dailyStats.revenue,
+        cost: state.dailyStats.cost + salaryCost,
+        profit: profit - salaryCost,
+        cups: state.dailyStats.cups,
+        satisfaction: state.dailyStats.satisfaction
+      };
+
+      // 检查成就
+      const newAchievements = checkAchievements();
+
+      section('今日财务报表', [
+        para('营业额：' + formatMoney(state.dailyStats.revenue)),
+        para('原料成本：' + formatMoney(state.dailyStats.cost)),
+        para('员工工资：' + formatMoney(salaryCost)),
+        para('利润：' + formatMoney(profit - salaryCost)),
+        para('售出杯数：' + state.dailyStats.cups + '杯'),
+        para('顾客满意度：' + state.dailyStats.satisfaction + '分'),
+        para('当前资金：' + formatMoney(state.money)),
+        para('当前口碑：' + state.reputation + '分')
+      ]);
+
+      if (state.phase === 2) {
+        section('本月进度', [
+          para('本月收入累计：' + formatMoney(state.monthStats.revenue) + '，目标：' + formatMoney(state.monthStats.target) + '。')
+        ]);
+      }
+
+      if (state.dailyStats.feedback && state.dailyStats.feedback.length > 0) {
+        const fbList = el('ul', { class: 'feedback-list' });
+        state.dailyStats.feedback.slice(-5).forEach(f => fbList.appendChild(el('li', {}, [f])));
+        section('顾客反馈（最近5条）', [fbList]);
+      }
+
+      if (newAchievements.length > 0) {
+        newAchievements.forEach(id => {
+          const ach = ACHIEVEMENTS[id];
+          const pop = el('div', { class: 'achievement-pop', role: 'alert' });
+          pop.appendChild(el('strong', {}, ['成就解锁：' + ach.name]));
+          pop.appendChild(para(ach.desc));
+          $('app').appendChild(pop);
+        });
+      }
+
+      // 阶段检查
+      if (state.phase === 1 && state.money >= 5000) {
+        section('重大进展', [
+          para('你已经攒够了5000元，可以租下第一家小店了。'),
+          btn('进入第二阶段：第一家小店', enterPhase2)
+        ]);
+      } else if (state.phase === 2 && shouldShowMonthlyReport()) {
+        renderMonthlyReport();
+        return;
+      } else {
+        section('', [btn('结束今天，进入下一天', nextDay, { once: true })]);
+      }
+
+      // 清空当日数据
+      clearDailyState();
+    }
+
+    function shouldShowMonthlyReport() {
+      if (state.monthStats.reported) return false;
+      const daysInPhase2 = state.day - state.monthStats.phase2StartDay + 1;
+      return daysInPhase2 >= 30;
+    }
+
+    function renderMonthlyReport() {
+      clearApp();
+      setLocation('月度报告');
+      state.monthStats.reported = true;
+      const reached = state.monthStats.revenue >= state.monthStats.target;
+      if (reached) state.monthStats.completed = true;
+
+      section('第' + state.monthStats.phase2StartDay + '天至第' + state.day + '天月度报告', [
+        para('本月营业收入：' + formatMoney(state.monthStats.revenue)),
+        para('目标收入：' + formatMoney(state.monthStats.target)),
+        reached
+          ? para('恭喜，你达到了月收入8000元的目标，小店经营稳定。')
+          : para('本月收入未达到目标，继续调整经营策略吧。')
+      ]);
+
+      if (reached) {
+        section('下一阶段', [
+          para('你已经完成了第一版的全部内容。是否提前体验人气小店阶段？'),
+          btn('进入第三阶段：人气小店（预览）', enterPhase3, { once: true }),
+          btn('留在第二阶段继续经营', () => {
+            state.monthStats.revenue = 0;
+            state.monthStats.phase2StartDay = state.day + 1;
+            state.monthStats.reported = false;
+            clearDailyState();
+            nextDay();
+          }, { once: true })
+        ]);
+      } else {
+        section('', [btn('继续经营，争取下个月达标', () => {
+          state.monthStats.phase2StartDay = state.day + 1;
+          state.monthStats.revenue = 0;
+          state.monthStats.reported = false;
+          clearDailyState();
+          nextDay();
+        }, { once: true })]);
+      }
+      saveGame();
+    }
+
+    // 清空当天数据，准备进入下一天
+    function clearDailyState() {
+      state.dailyStats = {
+        revenue: 0, cost: 0, cups: 0, satisfaction: 0,
+        customerCount: 0, served: 0, missed: 0, goodReviews: 0, feedback: [],
+        satisfactionSum: 0, businessDone: false
+      };
+      state.pendingEvent = null;
+      state.pendingRegular = null;
+      state.orders = [];
+      state.orderIndex = 0;
+      state.dayFlags = null;
+      saveGame();
+    }
+
+    function nextDay() {
+      state.day += 1;
+      saveGame();
+      renderMainScreen();
+    }
+
+    function enterPhase2() {
+      state.phase = 2;
+      state.phaseName = '第一家小店';
+      state.money -= 5000;
+      state.achievements.firstShop = true;
+      state.reputation += 10;
+      state.monthStats.phase2StartDay = state.day;
+      state.monthStats.revenue = 0;
+      state.monthStats.reported = false;
+      state.monthStats.completed = false;
+      saveGame();
+      clearApp();
+      setLocation('第一家小店');
+      section('新的起点', [
+        para('你用攒下的5000元，在街角租下了一间15平米的小店。'),
+        para('虽然只是小店，但终于有了屋檐和招牌的位置。'),
+        para('奶奶的旧推车被小心地收在角落，像一位老朋友。'),
+        para('现在你可以招聘员工、研发新饮品，目标是30天内月收入达到8000元。'),
+        btn('返回主界面', renderMainScreen)
+      ]);
+    }
+
+    function enterPhase3() {
+      state.phase = 3;
+      state.phaseName = '人气小店';
+      state.reputation += 15;
+      state.achievements.monthlyTarget = true;
+      clearDailyState();
+      saveGame();
+      clearApp();
+      setLocation('人气小店');
+      section('人气小店', [
+        para('你的小店渐渐有了固定客源，街坊邻居都知道这里有一杯好茶。'),
+        para('第三版内容（装修风格、8-10位常客、设备升级等）将在后续版本开放。'),
+        para('目前你可以继续经营这家小店，尝试招聘员工、研发更多饮品。'),
+        btn('返回主界面', renderMainScreen)
+      ]);
+    }
+
+    // 成就系统
+    function checkAchievements() {
+      const newly = [];
+      for (const [id, ach] of Object.entries(ACHIEVEMENTS)) {
+        if (!state.achievements[id] && ach.check(state)) {
+          state.achievements[id] = true;
+          newly.push(id);
+        }
+      }
+      return newly;
+    }
+
+    function renderAchievementsScreen() {
+      clearApp();
+      setLocation('成就');
+      const list = el('ul');
+      for (const [id, ach] of Object.entries(ACHIEVEMENTS)) {
+        const unlocked = !!state.achievements[id];
+        list.appendChild(el('li', {}, [
+          (unlocked ? '【已解锁】' : '【未解锁】') + ach.name + '：' + ach.desc
+        ]));
+      }
+      section('成就列表', [list]);
+      section('', [btn('返回主界面', renderMainScreen)]);
+    }
+
+    // =====================================================
+    // 语音朗读：调用系统自带的 TTS 引擎
+    // =====================================================
+    const VOICE_KEY = 'corner_tea_voice_v1';
+    const voice = {
+      enabled: true,
+      rate: 1,
+      voiceURI: '',
+      supported: !!(window.speechSynthesis && window.SpeechSynthesisUtterance),
+      queue: [],
+      speaking: false
+    };
+
+    function loadVoiceSettings() {
+      try {
+        const raw = localStorage.getItem(VOICE_KEY);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        if (typeof saved.enabled === 'boolean') voice.enabled = saved.enabled;
+        if (typeof saved.rate === 'number') voice.rate = clamp(saved.rate, 0.5, 1.5);
+        if (typeof saved.voiceURI === 'string') voice.voiceURI = saved.voiceURI;
+      } catch (e) {
+        // 设置在读取失败时保持默认值，不影响游戏
+      }
+    }
+
+    function saveVoiceSettings() {
+      try {
+        localStorage.setItem(VOICE_KEY, JSON.stringify({
+          enabled: voice.enabled,
+          rate: voice.rate,
+          voiceURI: voice.voiceURI
+        }));
+      } catch (e) {
+        // 存储不可用时忽略
+      }
+    }
+
+    // 取系统中的中文语音；没有中文语音时退回全部语音
+    function chineseVoices() {
+      if (!voice.supported) return [];
+      const all = window.speechSynthesis.getVoices() || [];
+      const zh = all.filter(v => /^zh/i.test(v.lang));
+      return zh.length ? zh : all;
+    }
+
+    function pickVoice() {
+      const list = chineseVoices();
+      if (!list.length) return null;
+      return list.find(v => v.voiceURI === voice.voiceURI) || list[0];
+    }
+
+    function stopSpeaking(silent) {
+      if (!voice.supported) return;
+      speechGeneration++;
+      voice.queue = [];
+      voice.speaking = false;
+      window.speechSynthesis.cancel();
+      if (!silent) announce('已停止朗读');
+    }
+
+    // 长文本分句，避免部分安卓引擎在超长文本处截断
+    function splitForSpeech(text) {
+      const raw = String(text).replace(/\s+/g, ' ').trim();
+      if (!raw) return [];
+      const sentences = raw.match(/[^。！？；]+[。！？；]?/g) || [raw];
+      const chunks = [];
+      let buf = '';
+      sentences.forEach(s => {
+        const t = s.trim();
+        if (!t) return;
+        if (t.length > 100) {
+          if (buf) { chunks.push(buf); buf = ''; }
+          for (let i = 0; i < t.length; i += 100) chunks.push(t.slice(i, i + 100));
+          return;
+        }
+        if (buf && (buf + t).length > 100) {
+          chunks.push(buf);
+          buf = t;
+        } else {
+          buf += t;
+        }
+      });
+      if (buf) chunks.push(buf);
+      return chunks;
+    }
+
+    let speechGeneration = 0;
+
+    function speakNextChunk(gen) {
+      if (gen !== speechGeneration) return;
+      if (!voice.queue.length) {
+        voice.speaking = false;
+        return;
+      }
+      const chunk = voice.queue.shift();
+      const u = new SpeechSynthesisUtterance(chunk);
+      u.lang = 'zh-CN';
+      u.rate = voice.rate;
+      u.pitch = 1;
+      const v = pickVoice();
+      if (v) u.voice = v;
+      u.onend = () => speakNextChunk(gen);
+      u.onerror = () => speakNextChunk(gen);
+      window.speechSynthesis.speak(u);
+    }
+
+    function speakText(text, interrupt) {
+      if (!voice.supported || !voice.enabled || !text) return;
+      if (interrupt !== false) {
+        speechGeneration++;
+        window.speechSynthesis.cancel();
+        voice.queue = [];
+        voice.speaking = false;
+      }
+      const chunks = splitForSpeech(text);
+      if (!chunks.length) return;
+      voice.queue = voice.queue.concat(chunks);
+      if (voice.speaking) return;
+      voice.speaking = true;
+      const gen = speechGeneration;
+      // 部分 iOS 版本在 cancel 后立刻 speak 会静音，留一点间隔
+      setTimeout(() => speakNextChunk(gen), 120);
+    }
+
+    // 把当前页面上的文字按阅读顺序拼起来
+    function collectPageText() {
+      const app = $('app');
+      if (!app) return '';
+      const nodes = app.querySelectorAll('h2, h3, p, li, button');
+      const parts = [];
+      nodes.forEach(node => {
+        const text = (node.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!text) return;
+        if (parts.length && parts[parts.length - 1] === text) return;
+        parts.push(text);
+      });
+      return parts.join('。').replace(/。。+/g, '。');
+    }
+
+    function readCurrentPage() {
+      if (!voice.supported) {
+        alert('当前环境不支持语音朗读，请使用系统读屏软件。');
+        return;
+      }
+      if (!voice.enabled) {
+        voice.enabled = true;
+        saveVoiceSettings();
+      }
+      const text = collectPageText();
+      if (text) speakText(text, true);
+    }
+
+    // 页面切换后自动朗读；同一页面内的局部刷新不重读
+    let pageSpeechVersion = 0;
+    let speechTimer = null;
+    let lastSpokenHeading = '';
+
+    function schedulePageSpeech() {
+      if (!voice.supported || !voice.enabled) return;
+      const version = ++pageSpeechVersion;
+      if (speechTimer) clearTimeout(speechTimer);
+      speechTimer = setTimeout(() => {
+        if (version !== pageSpeechVersion) return;
+        const headingEl = $('app').querySelector('h2');
+        const heading = headingEl ? headingEl.textContent.trim() : '';
+        if (heading && heading === lastSpokenHeading) return;
+        lastSpokenHeading = heading;
+        const text = collectPageText();
+        if (text) speakText(text, true);
+      }, 260);
+    }
+
+    // =====================================================
+    // 三指手势
+    // =====================================================
+    const GESTURE_KEY = 'corner_tea_gesture_v1';
+    const gesture = { enabled: true };
+
+    function loadGestureSettings() {
+      try {
+        const raw = localStorage.getItem(GESTURE_KEY);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        if (typeof saved.enabled === 'boolean') gesture.enabled = saved.enabled;
+      } catch (e) {
+        // 保持默认值
+      }
+    }
+
+    function saveGestureSettings() {
+      try {
+        localStorage.setItem(GESTURE_KEY, JSON.stringify({ enabled: gesture.enabled }));
+      } catch (e) {
+        // 忽略
+      }
+    }
+
+    let threeFingerStart = null;
+
+    function averageTouchPoint(touches) {
+      let x = 0;
+      let y = 0;
+      for (let i = 0; i < touches.length; i++) {
+        x += touches[i].clientX;
+        y += touches[i].clientY;
+      }
+      return { x: x / touches.length, y: y / touches.length };
+    }
+
+    function returnToMainByGesture() {
+      announce('返回主界面');
+      if (state.flags && state.flags.introShown) renderMainScreen();
+      else renderStartScreen();
+    }
+
+    function bindGestures() {
+      document.addEventListener('touchstart', function (e) {
+        if (!gesture.enabled || e.touches.length !== 3) {
+          threeFingerStart = null;
+          return;
+        }
+        const p = averageTouchPoint(e.touches);
+        threeFingerStart = { x: p.x, y: p.y, lastX: p.x, lastY: p.y, time: Date.now() };
+      }, { passive: true });
+
+      document.addEventListener('touchmove', function (e) {
+        if (!gesture.enabled || !threeFingerStart || e.touches.length !== 3) return;
+        const p = averageTouchPoint(e.touches);
+        threeFingerStart.lastX = p.x;
+        threeFingerStart.lastY = p.y;
+      }, { passive: true });
+
+      document.addEventListener('touchend', function (e) {
+        if (!gesture.enabled || !threeFingerStart) return;
+        if (e.touches.length > 0) return;
+        const start = threeFingerStart;
+        threeFingerStart = null;
+        const dx = start.lastX - start.x;
+        const dy = start.lastY - start.y;
+        const dt = Date.now() - start.time;
+        if (dt > 1000) return;
+        if (Math.max(Math.abs(dx), Math.abs(dy)) < 70) return;
+
+        if (Math.abs(dx) > Math.abs(dy)) {
+          if (dx < 0) returnToMainByGesture();
+          else readCurrentPage();
+        } else if (dy < 0) {
+          renderSettingsScreen();
+        } else {
+          stopSpeaking();
+        }
+      }, { passive: true });
+
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) stopSpeaking(true);
+      });
+    }
+
+    // =====================================================
+    // 设置页
+    // =====================================================
+    function renderSettingsScreen() {
+      clearApp();
+      setLocation('设置');
+
+      const voiceStateText = !voice.supported
+        ? '当前环境不支持语音朗读。'
+        : (voice.enabled ? '语音朗读已开启。' : '语音朗读已关闭。');
+
+      const voiceChildren = [
+        para('开启后，游戏会调用手机系统自带的语音引擎朗读当前页面。如果同时开着读屏软件，建议关掉其中一个，避免重复朗读。'),
+        el('p', { class: 'setting-note' }, [voiceStateText]),
+        btn(voice.enabled ? '关闭语音朗读' : '开启语音朗读', function () {
+          voice.enabled = !voice.enabled;
+          saveVoiceSettings();
+          if (!voice.enabled) stopSpeaking(true);
+          renderSettingsScreen();
+          if (voice.enabled) speakText('语音朗读已开启', true);
+          else announce('语音朗读已关闭');
+        }, { disabled: !voice.supported })
+      ];
+
+      if (voice.supported) {
+        voiceChildren.push(el('p', { class: 'setting-note' }, ['当前语速：' + voice.rate.toFixed(1) + ' 倍']));
+        voiceChildren.push(el('div', { class: 'button-row' }, [
+          btn('慢一点', function () {
+            voice.rate = clamp(Number((voice.rate - 0.1).toFixed(1)), 0.5, 1.5);
+            saveVoiceSettings();
+            renderSettingsScreen();
+            speakText('这是慢一点的语速', true);
+          }, { small: true }),
+          btn('快一点', function () {
+            voice.rate = clamp(Number((voice.rate + 0.1).toFixed(1)), 0.5, 1.5);
+            saveVoiceSettings();
+            renderSettingsScreen();
+            speakText('这是快一点的语速', true);
+          }, { small: true })
+        ]));
+        voiceChildren.push(btn('试听当前音色', function () {
+          speakText('茶要慢慢泡，日子也是。', true);
+        }, { secondary: true }));
+      }
+
+      section('语音朗读', voiceChildren);
+
+      const availableVoices = chineseVoices();
+      if (voice.supported) {
+        if (availableVoices.length) {
+          section('音色', [
+            labelWithSelect('选择朗读音色', 'voice-select',
+              availableVoices.map(function (v) {
+                return { value: v.voiceURI, text: v.name + '（' + v.lang + '）' };
+              }),
+              voice.voiceURI || availableVoices[0].voiceURI,
+              function (val) {
+                voice.voiceURI = val;
+                saveVoiceSettings();
+                speakText('这是当前的朗读音色。', true);
+              }
+            ),
+            para('这些音色来自手机系统自带或你安装的语音包。')
+          ]);
+        } else {
+          section('音色', [
+            para('还没有检测到可用的语音。请到手机的"设置 - 语言和输入法 - 文字转语音"里安装中文语音包，然后回到这里重试。')
+          ]);
+        }
+      }
+
+      section('手势操作', [
+        para('用三根手指在屏幕上滑动，可以不找按钮就完成常用操作。'),
+        btn(gesture.enabled ? '关闭手势操作' : '开启手势操作', function () {
+          gesture.enabled = !gesture.enabled;
+          saveGestureSettings();
+          renderSettingsScreen();
+          announce(gesture.enabled ? '手势操作已开启' : '手势操作已关闭');
+        }),
+        el('ul', {}, [
+          el('li', {}, ['三指左滑：返回主界面']),
+          el('li', {}, ['三指右滑：朗读本页']),
+          el('li', {}, ['三指上滑：打开设置']),
+          el('li', {}, ['三指下滑：停止朗读'])
+        ]),
+        para('注意：如果同时开着读屏软件，读屏本身可能占用了手势，导致游戏手势失效。手势不灵时请直接使用页面上的按钮。')
+      ]);
+
+      section('', [btn('返回主界面', function () {
+        if (state.flags && state.flags.introShown) renderMainScreen();
+        else renderStartScreen();
+      }, { secondary: true })]);
+    }
+
+    function init() {
+      loadVoiceSettings();
+      loadGestureSettings();
+      loadGame();
+      setHeaderPhase(state.phase);
+      renderStartScreen();
+
+      $('btn-save').addEventListener('click', () => {
+        saveGame();
+        alert('游戏已保存。');
+      });
+      $('btn-reset').addEventListener('click', resetGame);
+      $('btn-read').addEventListener('click', readCurrentPage);
+      $('btn-stop').addEventListener('click', () => stopSpeaking());
+      $('btn-settings').addEventListener('click', renderSettingsScreen);
+      bindGestures();
+
+      if (voice.supported) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          if ($('voice-select')) renderSettingsScreen();
+        };
+      }
+
+      // 注册离线缓存，供安装到主屏幕和打包成 App 使用
+      if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+        navigator.serviceWorker.register('sw.js').catch(() => {
+          // 单文件分发或本地打开时注册失败，不影响游戏运行
+        });
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
